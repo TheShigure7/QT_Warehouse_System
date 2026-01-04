@@ -2,8 +2,9 @@
 #define GOODSMODEL_H
 
 #include <QSqlTableModel>
+#include <QSqlRelationalTableModel>
 
-class GoodsModel : public QSqlTableModel
+class GoodsModel : public QSqlRelationalTableModel
 {
     Q_OBJECT
 public:
