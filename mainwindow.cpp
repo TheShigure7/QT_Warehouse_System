@@ -225,6 +225,7 @@ void MainWindow::handleStockChange(bool isInbound)
         db.commit();
         ui->statusbar->showMessage(isInbound ? "入库成功" : "出库成功", 3000);
         model->select(); // 刷新界面
+        emit dbUpdated();
     } else {
         db.rollback();
         QMessageBox::critical(this, "数据库错误", query.lastError().text());

@@ -20,6 +20,10 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+
+signals:
+    void dbUpdated(); // 定义一个信号-数据库已更新
+
 private slots:
     // 界面按钮槽函数
     void on_btnAdd_clicked();

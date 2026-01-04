@@ -42,3 +42,12 @@ RecordsDialog::~RecordsDialog()
 {
     delete ui;
 }
+
+void RecordsDialog::refreshData()
+{
+    // 重新查询数据库
+    model->select();
+
+    // 可选：如果是按时间倒序排列，可以在这里重新应用一下排序
+    // model->sort(model->fieldIndex("record_time"), Qt::DescendingOrder);
+}

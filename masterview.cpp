@@ -39,6 +39,9 @@ void MasterView::initViews()
 
     // 默认显示第 0 页
     ui->stackedWidget->setCurrentIndex(0);
+
+    connect(pageGoods, &MainWindow::dbUpdated,
+            pageRecords, &RecordsDialog::refreshData);
 }
 
 // 切换到“货品管理”

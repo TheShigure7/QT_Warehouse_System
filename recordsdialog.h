@@ -15,6 +15,7 @@ class RecordsDialog : public QDialog
 public:
     explicit RecordsDialog(QWidget *parent = nullptr);
     ~RecordsDialog();
+    void refreshData();
 
 private:
     Ui::RecordsDialog *ui;
