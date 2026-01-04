@@ -13,16 +13,19 @@ SOURCES += \
     dbmanager.cpp \
     goodsmodel.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    recordsdialog.cpp
 
 HEADERS += \
     dataworker.h \
     dbmanager.h \
     goodsmodel.h \
-    mainwindow.h
+    mainwindow.h \
+    recordsdialog.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    recordsdialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
