@@ -138,38 +138,72 @@ void MainWindow::on_btnDel_clicked()
 }
 
 // 核心通用逻辑
+// 核心通用逻辑：出入库处理
 void MainWindow::handleStockChange(bool isInbound)
 {
+    // 1. 检查是否选中
     QModelIndex index = ui->tableView->currentIndex();
-    if (!index.isValid()) return;
-
-    int row = index.row();
-    int goodsId = model->record(row).value("goods_id").toInt();
-    int currentQty = model->record(row).value("stock_quantity").toInt();
-    double price = model->record(row).value("goods_price").toDouble();
-    int warehouseId = model->record(row).value("w_id").toInt();
-
-    int changeQty = ui->spinAmount->value();
-    int newQty = isInbound ? (currentQty + changeQty) : (currentQty - changeQty);
-    double totalPrice = price * changeQty;
-
-    if (newQty < 0) {
-        QMessageBox::critical(this, "错误", "库存不足！");
+    if (!index.isValid()) {
+        ui->statusbar->showMessage("请先选择一行货品", 3000);
         return;
     }
 
+    // 2. 获取当前选中的 Goods ID
+    int row = index.row();
+    // 注意：我们要获取 goods_id，这列在数据库里肯定是有的
+    // 使用 record(row).value("goods_id") 是安全的
+    int goodsId = model->record(row).value("goods_id").toInt();
+
+    // 3. 【重点修改】直接从数据库查询该商品的最新信息 (单价、仓库ID、当前库存)
+    // 这样做是为了防止 UI 上的数据滞后，或者 Model 里的关系映射导致读出奇怪的值
+    QSqlQuery q;
+    q.prepare("SELECT w_id, goods_price, stock_quantity FROM goods WHERE goods_id = ?");
+    q.addBindValue(goodsId);
+
+    int warehouseId = 0;
+    double price = 0.0;
+    int currentStock = 0;
+
+    if (q.exec() && q.next()) {
+        warehouseId = q.value("w_id").toInt();
+        price = q.value("goods_price").toDouble();
+        currentStock = q.value("stock_quantity").toInt();
+    } else {
+        QMessageBox::critical(this, "错误", "无法查询商品详细信息！");
+        return;
+    }
+
+    // 4. 校验单价 (如果是 0，提示用户先去设置单价)
+    if (price <= 0.0001) {
+        int ret = QMessageBox::warning(this, "提示",
+                                       "检测到该商品单价为 0，是否继续？\n建议先在表格中修改单价。",
+                                       QMessageBox::Yes | QMessageBox::No);
+        if (ret == QMessageBox::No) return;
+    }
+
+    // 5. 计算数值
+    int changeQty = ui->spinAmount->value();
+    int newQty = isInbound ? (currentStock + changeQty) : (currentStock - changeQty);
+    double totalPrice = price * changeQty; // 计算总价
+
+    if (newQty < 0) {
+        QMessageBox::critical(this, "错误", "库存不足，无法出库！");
+        return;
+    }
+
+    // 6. 开启事务写入数据库
     QSqlDatabase db = QSqlDatabase::database();
     db.transaction();
     QSqlQuery query(db);
     bool success = true;
 
-    // 更新库存
+    // A. 更新库存
     query.prepare("UPDATE goods SET stock_quantity = ? WHERE goods_id = ?");
     query.addBindValue(newQty);
     query.addBindValue(goodsId);
     if (!query.exec()) success = false;
 
-    // 插入记录
+    // B. 插入记录 (这里写入查出来的 warehouseId 和 price，绝对不会是 0 了)
     if (success) {
         query.prepare(R"(
             INSERT INTO stock_record
@@ -177,22 +211,23 @@ void MainWindow::handleStockChange(bool isInbound)
             VALUES (?, ?, ?, ?, ?, ?, ?)
         )");
         query.addBindValue(goodsId);
-        query.addBindValue(warehouseId);
+        query.addBindValue(warehouseId); // 写入正确的仓库ID
         query.addBindValue(isInbound ? "入库" : "出库");
         query.addBindValue(changeQty);
-        query.addBindValue(price);
-        query.addBindValue(totalPrice);
+        query.addBindValue(price);       // 写入正确的单价
+        query.addBindValue(totalPrice);  // 写入正确的总价
         query.addBindValue("Admin");
         if (!query.exec()) success = false;
     }
 
+    // 7. 提交或回滚
     if (success) {
         db.commit();
-        ui->statusbar->showMessage("操作成功", 3000);
-        model->select();
+        ui->statusbar->showMessage(isInbound ? "入库成功" : "出库成功", 3000);
+        model->select(); // 刷新界面
     } else {
         db.rollback();
-        QMessageBox::critical(this, "错误", query.lastError().text());
+        QMessageBox::critical(this, "数据库错误", query.lastError().text());
     }
 }
 
