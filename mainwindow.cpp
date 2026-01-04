@@ -30,10 +30,13 @@ MainWindow::MainWindow(QWidget *parent)
     // 设置表头
     model->setHeaderData(model->fieldIndex("goods_name"), Qt::Horizontal, "货品名称");
     model->setHeaderData(model->fieldIndex("goods_spec"), Qt::Horizontal, "规格");
+    model->setHeaderData(model->fieldIndex("goods_intro"), Qt::Horizontal, "简介");
+    model->setHeaderData(model->fieldIndex("goods_unit"), Qt::Horizontal, "单位");
     model->setHeaderData(model->fieldIndex("goods_price"), Qt::Horizontal, "单价(元)");
     model->setHeaderData(wIdIndex, Qt::Horizontal, "所属仓库");
     model->setHeaderData(model->fieldIndex("stock_quantity"), Qt::Horizontal, "库存");
-    model->setHeaderData(model->fieldIndex("goods_intro"), Qt::Horizontal, "简介");
+    model->setHeaderData(model->fieldIndex("warning_quantity"), Qt::Horizontal, "预警阈值");
+
 
     ui->tableView->setModel(model);
 
@@ -42,6 +45,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->tableView->hideColumn(0); // 隐藏ID
     ui->tableView->setColumnWidth(wIdIndex, 120);
+    ui->tableView->setColumnWidth(model->fieldIndex("goods_name"), 150);
+    ui->tableView->setColumnWidth(model->fieldIndex("goods_intro"), 200);
 
     // 初始化线程
     workerThread = new QThread(this);

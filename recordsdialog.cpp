@@ -29,6 +29,7 @@ RecordsDialog::RecordsDialog(QWidget *parent) :
     model->setHeaderData(model->fieldIndex("record_quantity"), Qt::Horizontal, "数量");
     model->setHeaderData(model->fieldIndex("total_price"), Qt::Horizontal, "总价");
     model->setHeaderData(model->fieldIndex("record_time"), Qt::Horizontal, "时间");
+    model->setHeaderData(model->fieldIndex("operator"), Qt::Horizontal, "操作员");
 
     ui->tableView->setModel(model);
     ui->tableView->setItemDelegate(new QSqlRelationalDelegate(ui->tableView));
