@@ -76,13 +76,53 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_btnAdd_clicked()
 {
-    QSqlRecord record = model->record();
-    record.setValue("goods_name", "新货品");
-    record.setValue("goods_price", 0.0);
-    record.setValue("stock_quantity", 0);
-    record.setValue("w_id", 1);
-    model->insertRecord(-1, record);
-    model->select();
+    // 1. 获取默认仓库ID
+    QSqlQuery q("SELECT w_id FROM warehouses LIMIT 1");
+    int defaultWId = 1;
+    if (q.next()) {
+        defaultWId = q.value(0).toInt();
+    } else {
+        QMessageBox::warning(this, "警告", "没有检测到仓库信息，无法创建货品！\n请检查数据库。");
+        return;
+    }
+
+    // 2. 准备数据
+    QString name = "新货品_" + QString::number(QDateTime::currentMSecsSinceEpoch() % 1000);
+    QString spec = "常规";
+    QString unit = "个";
+    double price = 0.0;
+    QString intro = "暂无简介"; // 之前可能因为空值问题，这里给个默认值
+    int stock = 0;
+    int warning = 10;
+
+    // 3. 【核心修改】使用 SQL 直接插入，绕过 Model 的映射坑
+    QSqlQuery insertQuery;
+    insertQuery.prepare(R"(
+        INSERT INTO goods (
+            goods_name, goods_spec, goods_unit, goods_price,
+            goods_intro, stock_quantity, warning_quantity, w_id
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?
+        )
+    )");
+
+    insertQuery.addBindValue(name);
+    insertQuery.addBindValue(spec);
+    insertQuery.addBindValue(unit);
+    insertQuery.addBindValue(price);
+    insertQuery.addBindValue(intro);
+    insertQuery.addBindValue(stock);
+    insertQuery.addBindValue(warning);
+    insertQuery.addBindValue(defaultWId); // 直接插入整数ID，数据库最喜欢这个
+
+    // 4. 执行并刷新
+    if (!insertQuery.exec()) {
+        QMessageBox::critical(this, "插入失败",
+                              "无法创建新货品。\n错误信息: " + insertQuery.lastError().text());
+    } else {
+        model->select(); // 重新查询数据库，界面会自动更新
+        ui->tableView->scrollToBottom(); // 滚到底部看新加的行
+    }
 }
 
 void MainWindow::on_btnDel_clicked()
