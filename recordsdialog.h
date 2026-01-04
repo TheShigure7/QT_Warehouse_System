@@ -2,6 +2,7 @@
 #define RECORDSDIALOG_H
 
 #include <QDialog>
+#include <QSqlRelationalTableModel> // 注意这里引用的是 Relational 模型
 
 namespace Ui {
 class RecordsDialog;
@@ -17,6 +18,7 @@ public:
 
 private:
     Ui::RecordsDialog *ui;
+    QSqlRelationalTableModel *model; // 使用关系型模型
 };
 
 #endif // RECORDSDIALOG_H
