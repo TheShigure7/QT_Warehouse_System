@@ -14,6 +14,7 @@ SOURCES += \
     goodsmodel.cpp \
     main.cpp \
     mainwindow.cpp \
+    masterview.cpp \
     recordsdialog.cpp
 
 HEADERS += \
@@ -21,10 +22,12 @@ HEADERS += \
     dbmanager.h \
     goodsmodel.h \
     mainwindow.h \
+    masterview.h \
     recordsdialog.h
 
 FORMS += \
     mainwindow.ui \
+    masterview.ui \
     recordsdialog.ui
 
 # Default rules for deployment.
