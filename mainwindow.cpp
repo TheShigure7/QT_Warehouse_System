@@ -41,6 +41,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->tableView->setModel(model);
 
+    connect(model, &QSqlTableModel::dataChanged,
+            this, &MainWindow::onModelDataChanged);
+
     // 启用关系代理，让"所属仓库"变成下拉框
     ui->tableView->setItemDelegate(new QSqlRelationalDelegate(ui->tableView));
 
@@ -279,4 +282,39 @@ void MainWindow::onThreadError(const QString &err)
     ui->statusbar->showMessage("错误: " + err, 5000);
     ui->groupBoxData->setEnabled(true);
     QMessageBox::critical(this, "错误", err);
+}
+
+void MainWindow::onModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    // 获取发生变化的列的索引
+    int col = topLeft.column();
+
+    // 获取我们关心的列的索引
+    int priceCol = model->fieldIndex("goods_price");
+    int stockCol = model->fieldIndex("stock_quantity");
+    int totalCol = model->fieldIndex("total_value");
+
+    // 只有当用户修改了“单价”或者“库存”时，我们才重新计算
+    // (如果不加这个判断，我们修改总价时又会触发这个信号，导致死循环)
+    if (col == priceCol || col == stockCol) {
+
+        int row = topLeft.row();
+
+        // 1. 获取当前行的单价和库存
+        // 注意：这里要用 record(row) 获取最新数据，不要用 data()，因为可能还未提交
+        double price = model->index(row, priceCol).data().toDouble();
+        int stock = model->index(row, stockCol).data().toInt();
+
+        // 2. 计算新的总价值
+        double newTotal = price * stock;
+
+        // 3. 获取旧的总价值（避免重复更新，如果没变就不动）
+        double oldTotal = model->index(row, totalCol).data().toDouble();
+
+        // 4. 如果数值确实变了，写入 Model
+        if (abs(newTotal - oldTotal) > 0.0001) {
+            model->setData(model->index(row, totalCol), newTotal);
+            // 因为设置了 OnFieldChange，setData 会自动提交到数据库
+        }
+    }
 }

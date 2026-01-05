@@ -24,6 +24,7 @@ public:
 signals:
     void dbUpdated(); // 定义一个信号-数据库已更新
 
+
 private slots:
     // 界面按钮槽函数
     void on_btnAdd_clicked();
@@ -32,6 +33,7 @@ private slots:
     void on_btnOut_clicked(); // 出库
     void on_btnImport_clicked();
     void on_btnExport_clicked();
+    void onModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
     // 线程回调
     void onThreadFinished(const QString &msg);
