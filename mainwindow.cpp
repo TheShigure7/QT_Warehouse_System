@@ -337,3 +337,32 @@ void MainWindow::on_btnPopAdd_clicked()
         QMessageBox::information(this, "成功", "新货品已添加！");
     }
 }
+
+void MainWindow::on_btnPopEdit_clicked()
+{
+    // 1. 获取当前选中的行
+    QModelIndex index = ui->tableView->currentIndex();
+    if (!index.isValid()) {
+        QMessageBox::warning(this, "提示", "请先选择一行货品！");
+        return;
+    }
+
+    // 2. 获取选中行的 ID
+    int row = index.row();
+    // 使用 record 获取数据最稳妥
+    int goodsId = model->record(row).value("goods_id").toInt();
+
+    // 3. 创建对话框并传入数据
+    GoodsTable dlg(this);
+    dlg.setEditData(goodsId); // 【关键】传入ID，这会让对话框进入“修改模式”并自动填好旧数据
+
+    // 4. 显示并处理结果
+    if (dlg.exec() == QDialog::Accepted) {
+        model->select(); // 刷新表格
+
+        // 可选：刷新后保持选中当前行
+        ui->tableView->selectRow(row);
+
+        QMessageBox::information(this, "成功", "货品信息已修改！");
+    }
+}

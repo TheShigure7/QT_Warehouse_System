@@ -36,7 +36,7 @@ private slots:
     void on_btnExport_clicked();
     void onModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void on_btnPopAdd_clicked();
-
+    void on_btnPopEdit_clicked();
 
 
     // 线程回调
