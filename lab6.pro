@@ -12,6 +12,7 @@ SOURCES += \
     dataworker.cpp \
     dbmanager.cpp \
     goodsmodel.cpp \
+    goodstable.cpp \
     main.cpp \
     mainwindow.cpp \
     masterview.cpp \
@@ -21,11 +22,13 @@ HEADERS += \
     dataworker.h \
     dbmanager.h \
     goodsmodel.h \
+    goodstable.h \
     mainwindow.h \
     masterview.h \
     recordsdialog.h
 
 FORMS += \
+    goodstable.ui \
     mainwindow.ui \
     masterview.ui \
     recordsdialog.ui

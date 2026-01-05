@@ -318,3 +318,22 @@ void MainWindow::onModelDataChanged(const QModelIndex &topLeft, const QModelInde
         }
     }
 }
+
+void MainWindow::on_btnPopAdd_clicked()
+{
+    // 1. 创建对话框实例
+    GoodsTable dlg(this);
+
+    // 2. 设置窗口标题
+    dlg.setWindowTitle("新建货品档案");
+
+    // 3. 模态显示（阻塞直到窗口关闭）
+    // 如果用户点击了“确定”且数据库插入成功，accept() 会返回 QDialog::Accepted
+    if (dlg.exec() == QDialog::Accepted) {
+        // 4. 刷新主界面的表格
+        model->select();
+        ui->tableView->scrollToBottom();
+
+        QMessageBox::information(this, "成功", "新货品已添加！");
+    }
+}

@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QThread>
 
+#include "goodstable.h"
+
 // 引入 UI 命名空间
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -24,7 +26,6 @@ public:
 signals:
     void dbUpdated(); // 定义一个信号-数据库已更新
 
-
 private slots:
     // 界面按钮槽函数
     void on_btnAdd_clicked();
@@ -34,6 +35,9 @@ private slots:
     void on_btnImport_clicked();
     void on_btnExport_clicked();
     void onModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void on_btnPopAdd_clicked();
+
+
 
     // 线程回调
     void onThreadFinished(const QString &msg);
