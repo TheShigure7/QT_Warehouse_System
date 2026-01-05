@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     model->setHeaderData(model->fieldIndex("goods_intro"), Qt::Horizontal, "简介");
     model->setHeaderData(model->fieldIndex("goods_unit"), Qt::Horizontal, "单位");
     model->setHeaderData(model->fieldIndex("goods_price"), Qt::Horizontal, "单价(元)");
+    model->setHeaderData(model->fieldIndex("total_value"), Qt::Horizontal, "总价值(元)");
     model->setHeaderData(wIdIndex, Qt::Horizontal, "所属仓库");
     model->setHeaderData(model->fieldIndex("stock_quantity"), Qt::Horizontal, "库存");
     model->setHeaderData(model->fieldIndex("warning_quantity"), Qt::Horizontal, "预警阈值");
@@ -100,9 +101,9 @@ void MainWindow::on_btnAdd_clicked()
     insertQuery.prepare(R"(
         INSERT INTO goods (
             goods_name, goods_spec, goods_unit, goods_price,
-            goods_intro, stock_quantity, warning_quantity, w_id
+            total_value, goods_intro, stock_quantity, warning_quantity, w_id
         ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?,?
         )
     )");
 
@@ -110,6 +111,7 @@ void MainWindow::on_btnAdd_clicked()
     insertQuery.addBindValue(spec);
     insertQuery.addBindValue(unit);
     insertQuery.addBindValue(price);
+    insertQuery.addBindValue(0.0);
     insertQuery.addBindValue(intro);
     insertQuery.addBindValue(stock);
     insertQuery.addBindValue(warning);
@@ -186,6 +188,8 @@ void MainWindow::handleStockChange(bool isInbound)
     int newQty = isInbound ? (currentStock + changeQty) : (currentStock - changeQty);
     double totalPrice = price * changeQty; // 计算总价
 
+    double newInventoryTotalValue = price * newQty;
+
     if (newQty < 0) {
         QMessageBox::critical(this, "错误", "库存不足，无法出库！");
         return;
@@ -198,9 +202,12 @@ void MainWindow::handleStockChange(bool isInbound)
     bool success = true;
 
     // A. 更新库存
-    query.prepare("UPDATE goods SET stock_quantity = ? WHERE goods_id = ?");
+    query.prepare("UPDATE goods SET stock_quantity = ?, total_value = ? WHERE goods_id = ?");
     query.addBindValue(newQty);
+    query.addBindValue(newInventoryTotalValue); // 写入新的总价值
     query.addBindValue(goodsId);
+
+
     if (!query.exec()) success = false;
 
     // B. 插入记录 (这里写入查出来的 warehouseId 和 price，绝对不会是 0 了)

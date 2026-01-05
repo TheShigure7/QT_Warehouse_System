@@ -47,6 +47,7 @@ public:
                 goods_spec TEXT,
                 goods_unit TEXT,
                 goods_price REAL DEFAULT 0.0,   -- 新增：单价
+                total_value REAL DEFAULT 0.0,
                 goods_intro TEXT,               -- 新增：简介
                 w_id INTEGER NOT NULL,          -- 新增：所属仓库ID
                 stock_quantity INTEGER NOT NULL DEFAULT 0,
