@@ -31,11 +31,15 @@ void MasterView::initViews()
     // 【关键】RecordsDialog 原本是弹窗，必须设为 Widget 模式才能嵌入
     pageRecords->setWindowFlags(Qt::Widget);
 
+    pageWarehouse = new WarehousePage(this);
+
     // === 添加到 StackedWidget ===
     // 索引 0
     ui->stackedWidget->addWidget(pageGoods);
     // 索引 1
     ui->stackedWidget->addWidget(pageRecords);
+
+    ui->stackedWidget->addWidget(pageWarehouse);
 
     // 默认显示第 0 页
     ui->stackedWidget->setCurrentIndex(0);
@@ -57,4 +61,14 @@ void MasterView::on_btnPageRecords_clicked()
     // pageRecords->refreshData(); // 需要你在 RecordsDialog 可以在 public 里加个刷新函数
 
     ui->stackedWidget->setCurrentIndex(1);
+}
+
+// 切换到“仓库信息”
+void MasterView::on_btnPageWarehouse_clicked()
+{
+    // 切换到索引 2
+    ui->stackedWidget->setCurrentIndex(2);
+
+    // 可选：每次切过来都刷新一下数据
+    pageWarehouse->refreshData();
 }
