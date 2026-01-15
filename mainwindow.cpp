@@ -136,7 +136,12 @@ void MainWindow::on_btnAdd_clicked()
     } else {
         model->select(); // 重新查询数据库，界面会自动更新
         ui->tableView->scrollToBottom(); // 滚到底部看新加的行
+
+        // 【新增】新建完成后，更新该仓库的统计数据
+        updateWarehouseStats(defaultWId);
     }
+
+
 }
 
 void MainWindow::on_btnDel_clicked()
@@ -245,10 +250,16 @@ void MainWindow::handleStockChange(bool isInbound)
         ui->statusbar->showMessage(isInbound ? "入库成功" : "出库成功", 3000);
         model->select(); // 刷新界面
         emit dbUpdated();
+
+        // 【新增】出入库完成后，更新该仓库的统计数据
+        updateWarehouseStats(warehouseId);
+
     } else {
         db.rollback();
         QMessageBox::critical(this, "数据库错误", query.lastError().text());
     }
+
+
 }
 
 void MainWindow::on_btnIn_clicked()
@@ -358,21 +369,48 @@ void MainWindow::on_btnPopEdit_clicked()
 
     // 2. 获取选中行的 ID
     int row = index.row();
-    // 使用 record 获取数据最稳妥
     int goodsId = model->record(row).value("goods_id").toInt();
+
+    // 【关键步骤】在弹出窗口修改之前，先记录下“旧的仓库ID”
+    // 因为用户可能会在弹窗里把这个货品改到别的仓库去
+    int oldWId = model->record(row).value("w_id").toInt();
 
     // 3. 创建对话框并传入数据
     GoodsTable dlg(this);
-    dlg.setEditData(goodsId); // 【关键】传入ID，这会让对话框进入“修改模式”并自动填好旧数据
+
+    // 注意：请检查你的 goodstable.h，确认函数名是 loadData 还是 setEditData
+    // 根据之前的“手动SQL方案”，应该是 loadData
+    dlg.setEditData(goodsId);
 
     // 4. 显示并处理结果
     if (dlg.exec() == QDialog::Accepted) {
-        model->select(); // 刷新表格
+        // 用户点击了“确定”，且数据库更新成功
+
+        // A. 刷新表格显示
+        model->select();
 
         // 可选：刷新后保持选中当前行
         ui->tableView->selectRow(row);
 
-        QMessageBox::information(this, "成功", "货品信息已修改！");
+        // B. 【核心逻辑】更新仓库统计数据
+        // 因为数据已经变了，我们去数据库查一下这个商品现在属于哪个仓库
+        QSqlQuery q;
+        q.prepare("SELECT w_id FROM goods WHERE goods_id = ?");
+        q.addBindValue(goodsId);
+
+        if (q.exec() && q.next()) {
+            int newWId = q.value(0).toInt();
+
+            // 1. 重新统计“现在的仓库”
+            updateWarehouseStats(newWId);
+
+            // 2. 如果用户修改了所属仓库，那么“原来的仓库”数据也要刷新（因为它少了一个货品）
+            if (oldWId != newWId) {
+                updateWarehouseStats(oldWId);
+            }
+        }
+
+        QMessageBox::information(this, "成功", "修改成功！");
     }
 }
 
@@ -421,4 +459,35 @@ void MainWindow::on_tabWidget_currentChanged(int index)
 
     // 3. 刷新显示
     model->select();
+}
+
+void MainWindow::updateWarehouseStats(int w_id)
+{
+    QSqlQuery q;
+
+    // 1. 计算该仓库目前的 总库存数量 和 总价值
+    // SQL 里的 SUM 函数非常好用
+    q.prepare("SELECT SUM(stock_quantity), SUM(total_value) FROM goods WHERE w_id = ?");
+    q.addBindValue(w_id);
+
+    int totalCount = 0;
+    double totalValue = 0.0;
+
+    if (q.exec() && q.next()) {
+        totalCount = q.value(0).toInt();   // 第一列是 SUM(stock_quantity)
+        totalValue = q.value(1).toDouble(); // 第二列是 SUM(total_value)
+    }
+
+    // 2. 将计算结果更新到 warehouses 表
+    QSqlQuery updateQ;
+    updateQ.prepare("UPDATE warehouses SET w_count = ?, w_value = ? WHERE w_id = ?");
+    updateQ.addBindValue(totalCount);
+    updateQ.addBindValue(totalValue);
+    updateQ.addBindValue(w_id);
+
+    if (!updateQ.exec()) {
+        qDebug() << "更新仓库统计失败:" << updateQ.lastError().text();
+    } else {
+        qDebug() << "仓库" << w_id << "统计更新完成: 数量" << totalCount << " 价值" << totalValue;
+    }
 }

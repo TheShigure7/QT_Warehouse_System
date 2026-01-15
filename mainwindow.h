@@ -39,6 +39,8 @@ private slots:
     void on_btnPopEdit_clicked();
     void on_tabWidget_currentChanged(int index);
 
+    void updateWarehouseStats(int w_id);
+
     // 线程回调
     void onThreadFinished(const QString &msg);
     void onThreadError(const QString &err);

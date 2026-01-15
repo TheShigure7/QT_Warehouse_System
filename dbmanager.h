@@ -27,7 +27,9 @@ public:
                 w_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 w_name TEXT NOT NULL,
                 w_address TEXT,
-                w_capacity INTEGER DEFAULT 10000
+                w_capacity INTEGER DEFAULT 10000,
+                w_count INTEGER DEFAULT 0,
+                w_value REAL DEFAULT 0.0
             )
         )");
         // 初始化测试数据：如果仓库表为空，插入两个仓库
