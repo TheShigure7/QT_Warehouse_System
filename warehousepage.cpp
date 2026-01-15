@@ -38,6 +38,9 @@ void WarehousePage::initTable()
     ui->viewWarehouse->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->viewWarehouse->setAlternatingRowColors(true);
     ui->viewWarehouse->horizontalHeader()->setStretchLastSection(true);
+
+    ui->viewWarehouse->setColumnWidth(1, 200);
+    ui->viewWarehouse->setColumnWidth(2, 400);
 }
 
 void WarehousePage::refreshData()
