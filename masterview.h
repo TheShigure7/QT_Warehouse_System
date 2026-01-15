@@ -21,6 +21,8 @@ public:
     explicit MasterView(QWidget *parent = nullptr);
     ~MasterView();
 
+    void initUser(const QString &username);
+
 private slots:
     // 按钮点击槽函数
     void on_btnPageGoods_clicked();

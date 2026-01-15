@@ -22,6 +22,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+     void setCurrentUser(const QString &user) { m_currentUser = user; }
+
 
 signals:
     void dbUpdated(); // 定义一个信号-数据库已更新
@@ -60,6 +62,8 @@ private:
     // 【新增】用来存储 Tab 索引和仓库 ID 的对应关系
     // 例如: index 0 -> -1 (全部), index 1 -> 1 (主仓库), index 2 -> 2 (分仓库)
     QList<int> m_tabWarehouseIds;
+
+    QString m_currentUser; // 【新增】存储当前登录的用户名
 };
 
 #endif // MAINWINDOW_H

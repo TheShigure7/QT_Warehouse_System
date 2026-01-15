@@ -13,6 +13,7 @@ SOURCES += \
     dbmanager.cpp \
     goodsmodel.cpp \
     goodstable.cpp \
+    logindialog.cpp \
     main.cpp \
     mainwindow.cpp \
     masterview.cpp \
@@ -25,6 +26,7 @@ HEADERS += \
     dbmanager.h \
     goodsmodel.h \
     goodstable.h \
+    logindialog.h \
     mainwindow.h \
     masterview.h \
     recordsdialog.h \
@@ -33,6 +35,7 @@ HEADERS += \
 
 FORMS += \
     goodstable.ui \
+    logindialog.ui \
     mainwindow.ui \
     masterview.ui \
     recordsdialog.ui \

@@ -75,6 +75,23 @@ public:
             )
         )");
 
+        // 6. 创建用户表 (新增)
+        // =======================================================
+        query.exec(R"(
+            CREATE TABLE IF NOT EXISTS users (
+                user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT NOT NULL UNIQUE,
+                password TEXT NOT NULL
+            )
+        )");
+
+        // 插入默认管理员账号 (账号: admin, 密码: 123456)
+        // 使用 INSERT OR IGNORE 避免重复插入报错
+        QSqlQuery userCheck("SELECT count(*) FROM users");
+        if (userCheck.next() && userCheck.value(0).toInt() == 0) {
+            query.exec("INSERT INTO users (username, password) VALUES ('admin', '123456')");
+            query.exec("INSERT INTO users (username, password) VALUES ('YuchengZhang', '2023414290437')");
+        }
         return true;
     }
 };

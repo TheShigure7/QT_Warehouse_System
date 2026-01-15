@@ -20,6 +20,17 @@ MasterView::~MasterView()
     delete ui;
 }
 
+void MasterView::initUser(const QString &username)
+{
+    // 设置窗口标题，带上用户名，显得专业点
+    this->setWindowTitle(QString("企业库存管理系统 - 当前操作员: %1").arg(username));
+
+    // 把用户名传给 pageGoods (也就是 MainWindow)
+    if (pageGoods) {
+        pageGoods->setCurrentUser(username);
+    }
+}
+
 void MasterView::initViews()
 {
     // === 页面 1: 货品管理 (MainWindow) ===

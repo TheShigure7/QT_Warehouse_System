@@ -240,7 +240,11 @@ void MainWindow::handleStockChange(bool isInbound)
         query.addBindValue(changeQty);
         query.addBindValue(price);       // 写入正确的单价
         query.addBindValue(totalPrice);  // 写入正确的总价
-        query.addBindValue("Admin");
+
+        // ✅ 使用登录时的用户名
+        // 如果为空(防止意外)，给个默认值
+        query.addBindValue(m_currentUser.isEmpty() ? "Unknown" : m_currentUser);
+
         if (!query.exec()) success = false;
     }
 
