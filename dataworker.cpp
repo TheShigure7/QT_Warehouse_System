@@ -7,6 +7,7 @@
 #include <QThread>
 #include <QDebug>
 #include <QCoreApplication>
+#include <QDateTime>
 
 DataWorker::DataWorker(QObject *parent) : QObject(parent) {}
 
@@ -148,6 +149,65 @@ void DataWorker::importFromCsv(const QString &filePath)
                 emit dataChanged();
             } else {
                 emit taskFailed("无法读取文件");
+            }
+            db.close();
+        } else {
+            emit taskFailed("数据库连接失败");
+        }
+    }
+    QSqlDatabase::removeDatabase(connName);
+}
+
+void DataWorker::exportRecordsToCsv(const QString &filePath)
+{
+    QString connName = QString("Worker_RecExp_%1").arg((quint64)QThread::currentThreadId());
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", connName);
+        db.setDatabaseName(QCoreApplication::applicationDirPath() + "/warehouse_v2.db");
+
+        if (db.open()) {
+            QFile file(filePath);
+            if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+                // 写入 BOM 防止 Excel 中文乱码
+                QByteArray bom;
+                bom.append(char(0xEF));
+                bom.append(char(0xBB));
+                bom.append(char(0xBF));
+                file.write(bom);
+
+                QTextStream out(&file);
+
+                // 1. 写入表头
+                out << "记录ID,货品名称,所属仓库,类型,数量,单价,总价,操作时间,操作员\n";
+
+                // 2. 联合查询 (JOIN)
+                // 我们需要从 goods 表拿名字，从 warehouses 表拿仓库名
+                QSqlQuery query(db);
+                query.exec(R"(
+                    SELECT r.record_id, g.goods_name, w.w_name, r.record_type,
+                           r.record_quantity, r.single_price, r.total_price,
+                           r.record_time, r.operator
+                    FROM stock_record r
+                    LEFT JOIN goods g ON r.goods_id = g.goods_id
+                    LEFT JOIN warehouses w ON r.w_id = w.w_id
+                )");
+
+                while(query.next()) {
+                    out << query.value(0).toString() << "," // ID
+                        << query.value(1).toString() << "," // 货品名
+                        << query.value(2).toString() << "," // 仓库名
+                        << query.value(3).toString() << "," // 类型
+                        << query.value(4).toInt() << ","    // 数量
+                        << query.value(5).toDouble() << "," // 单价
+                        << query.value(6).toDouble() << "," // 总价
+                        << query.value(7).toDateTime().toString("yyyy-MM-dd HH:mm:ss") << "," // 时间
+                        << query.value(8).toString() << "\n"; // 操作员
+                }
+
+                file.close();
+                emit taskFinished("记录导出成功！");
+            } else {
+                emit taskFailed("无法创建文件");
             }
             db.close();
         } else {

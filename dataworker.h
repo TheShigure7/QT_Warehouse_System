@@ -11,6 +11,7 @@ public:
 
 public slots:
     void exportToCsv(const QString &filePath);
+    void exportRecordsToCsv(const QString &filePath); // 【新增】导出记录
     void importFromCsv(const QString &filePath);
 
 signals:
