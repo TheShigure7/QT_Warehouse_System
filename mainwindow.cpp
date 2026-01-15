@@ -66,6 +66,15 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     workerThread->start();
+
+
+    // 【新增】初始化底部仓库标签
+    initWarehouseTabs();
+
+    // 【新增】不需要手动 connect，因为我们在 ui 界面里如果用了 "转到槽" 或者符合命名规范
+    // on_tabWidget_currentChanged 会被自动连接。
+    // 如果没有自动连接，你可以手动加一句：
+     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &MainWindow::on_tabWidget_currentChanged);
 }
 
 // === 析构函数 (报错里提到的 ~MainWindow) ===
@@ -365,4 +374,51 @@ void MainWindow::on_btnPopEdit_clicked()
 
         QMessageBox::information(this, "成功", "货品信息已修改！");
     }
+}
+
+void MainWindow::initWarehouseTabs()
+{
+    // 1. 清空现有的 Tabs
+    ui->tabWidget->clear();
+    m_tabWarehouseIds.clear();
+
+    // 2. 添加“全部”标签 (作为第0个)
+    // 这里的 new QWidget() 是必须的，因为 TabWidget 每一页必须有个控件，虽然我们不显示它
+    ui->tabWidget->addTab(new QWidget(), "全部货品");
+    m_tabWarehouseIds.append(-1); // -1 代表全部，对应 Index 0
+
+    // 3. 查询数据库里的仓库
+    QSqlQuery query("SELECT w_id, w_name FROM warehouses");
+    while (query.next()) {
+        int id = query.value("w_id").toInt();
+        QString name = query.value("w_name").toString();
+
+        // 动态添加 Tab
+        ui->tabWidget->addTab(new QWidget(), name);
+
+        // 记录 ID
+        m_tabWarehouseIds.append(id);
+    }
+}
+
+void MainWindow::on_tabWidget_currentChanged(int index)
+{
+    // 防止初始化时的误触发
+    if (index < 0 || index >= m_tabWarehouseIds.size()) return;
+
+    // 1. 获取当前 Tab 对应的仓库 ID
+    int warehouseId = m_tabWarehouseIds[index];
+
+    // 2. 根据 ID 设置过滤器
+    if (warehouseId == -1) {
+        // === 显示全部 ===
+        model->setFilter(""); // 清空过滤器
+    } else {
+        // === 显示特定仓库 ===
+        // 相当于 SQL: SELECT * FROM goods WHERE w_id = 1
+        model->setFilter(QString("goods.w_id = %1").arg(warehouseId));
+    }
+
+    // 3. 刷新显示
+    model->select();
 }

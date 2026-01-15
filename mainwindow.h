@@ -37,7 +37,7 @@ private slots:
     void onModelDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void on_btnPopAdd_clicked();
     void on_btnPopEdit_clicked();
-
+    void on_tabWidget_currentChanged(int index);
 
     // 线程回调
     void onThreadFinished(const QString &msg);
@@ -51,6 +51,13 @@ private:
 
     // 辅助函数：处理出入库逻辑
     void handleStockChange(bool isInbound);
+
+    // 【新增】初始化底部标签栏
+    void initWarehouseTabs();
+
+    // 【新增】用来存储 Tab 索引和仓库 ID 的对应关系
+    // 例如: index 0 -> -1 (全部), index 1 -> 1 (主仓库), index 2 -> 2 (分仓库)
+    QList<int> m_tabWarehouseIds;
 };
 
 #endif // MAINWINDOW_H
