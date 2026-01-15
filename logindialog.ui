@@ -13,16 +13,102 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">/* 整个登录窗口背景 */
+QWidget {
+    background-color: #f5f5f5;
+}
+
+/* 标题标签（对应titleLable）- 参考图二的绿色标题栏 */
+titleLable {
+    background-color: #2ecc71; /* 图二的绿色主色调 */
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 10px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+/* 关闭按钮（btnExit）- 标题栏右侧的按钮 */
+btnExit {
+    background-color: transparent;
+    color: white;
+    font-size: 16px;
+    border: none;
+    padding: 5px 10px;
+}
+btnExit:hover {
+    background-color: #e74c3c;
+}
+
+/* 账号/密码标签（labelUser、labelPass） */
+labelUser, labelPass {
+    color: #333;
+    font-size: 14px;
+    padding-right: 10px;
+}
+
+/* 账号输入框（editUser）、密码输入框（editPass） */
+editUser, editPass {
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    padding: 6px;
+    font-size: 14px;
+    background-color: white;
+}
+editUser:focus, editPass:focus {
+    border-color: #2ecc71;
+    outline: none;
+}
+
+/* 登录按钮（btnLogin）- 参考图二的绿色按钮 */
+btnLogin {
+    background-color: #2ecc71;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 20px;
+}
+btnLogin:hover {
+    background-color: #27ae60;
+}
+btnLogin:disabled {
+    background-color: #bdc3c7;
+}
+
+/* 注册按钮（loginUp）- 辅助按钮 */
+loginUp {
+    background-color: transparent;
+    color: #2ecc71;
+    font-size: 14px;
+    border: none;
+    padding: 5px 10px;
+}
+loginUp:hover {
+    color: #27ae60;
+    text-decoration: underline;
+}</string>
+  </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="1" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="titleLable">
        <property name="minimumSize">
         <size>
          <width>200</width>
          <height>0</height>
         </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">font-size: 20px;
+font-weight: bold;
+padding: 10px;
+border-top-left-radius: 5px;
+border-top-right-radius: 5px;</string>
        </property>
        <property name="text">
         <string>仓库管理系统</string>
@@ -44,6 +130,16 @@
      </item>
      <item>
       <widget class="QPushButton" name="btnExit">
+       <property name="styleSheet">
+        <string notr="true">background-color: transparent;
+color: white;
+font-size: 16px;
+border: none;
+padding: 5px 10px;
+}
+:hover {
+background-color: #e74c3c; /* hover时变红 */</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -54,15 +150,15 @@
      </item>
     </layout>
    </item>
-   <item row="1" column="1">
-    <spacer name="verticalSpacer_3">
+   <item row="2" column="2">
+    <spacer name="horizontalSpacer_3">
      <property name="orientation">
-      <enum>Qt::Orientation::Vertical</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>20</width>
-       <height>82</height>
+       <width>98</width>
+       <height>20</height>
       </size>
      </property>
     </spacer>
@@ -74,8 +170,21 @@
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>109</width>
+       <width>91</width>
        <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="1">
+    <spacer name="verticalSpacer_3">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>53</height>
       </size>
      </property>
     </spacer>
@@ -85,7 +194,12 @@
      <item>
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0" colspan="2">
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="labelUser">
+         <property name="styleSheet">
+          <string notr="true">color: #333;
+font-size: 14px;
+padding-right: 10px;</string>
+         </property>
          <property name="text">
           <string>账号：</string>
          </property>
@@ -93,6 +207,17 @@
        </item>
        <item row="0" column="2">
         <widget class="QLineEdit" name="editUser">
+         <property name="styleSheet">
+          <string notr="true">border: 1px solid #ddd;
+border-radius: 3px;
+padding: 6px;
+font-size: 14px;
+background-color: white;
+}
+:focus {
+border-color: #2ecc71; /* 聚焦时边框变绿 */
+outline: none;</string>
+         </property>
          <property name="text">
           <string>YuchengZhang</string>
          </property>
@@ -100,6 +225,17 @@
        </item>
        <item row="1" column="2">
         <widget class="QLineEdit" name="editPass">
+         <property name="styleSheet">
+          <string notr="true">border: 1px solid #ddd;
+border-radius: 3px;
+padding: 6px;
+font-size: 14px;
+background-color: white;
+}
+:focus {
+border-color: #2ecc71;
+outline: none;</string>
+         </property>
          <property name="text">
           <string>2023414290437</string>
          </property>
@@ -109,7 +245,12 @@
         </widget>
        </item>
        <item row="1" column="0" colspan="2">
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="labelPass">
+         <property name="styleSheet">
+          <string notr="true">color: #333;
+font-size: 14px;
+padding-right: 10px;</string>
+         </property>
          <property name="text">
           <string>密码：</string>
          </property>
@@ -134,6 +275,27 @@
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QPushButton" name="btnLogin">
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: #2ecc71;
+color: white;
+font-size: 10px;
+font-weight: bold;
+border: none;
+border-radius: 5px;
+padding: 8px 20px;
+}
+:hover {
+background-color: #27ae60; /* 深绿 hover 效果 */
+}
+:disabled {
+background-color: #bdc3c7; /* 禁用时灰色 */</string>
+         </property>
          <property name="text">
           <string>登录</string>
          </property>
@@ -154,6 +316,27 @@
        </item>
        <item>
         <widget class="QPushButton" name="loginUp">
+         <property name="minimumSize">
+          <size>
+           <width>70</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: #2ecc71;
+color: white;
+font-size: 10px;
+font-weight: bold;
+border: none;
+border-radius: 5px;
+padding: 8px 20px;
+}
+:hover {
+background-color: #27ae60; /* 深绿 hover 效果 */
+}
+:disabled {
+background-color: #bdc3c7; /* 禁用时灰色 */</string>
+         </property>
          <property name="text">
           <string>注册</string>
          </property>
@@ -163,19 +346,6 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="2">
-    <spacer name="horizontalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Orientation::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>116</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="3" column="1">
     <spacer name="verticalSpacer_2">
      <property name="orientation">
@@ -184,7 +354,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>82</height>
+       <height>54</height>
       </size>
      </property>
     </spacer>
