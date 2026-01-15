@@ -16,7 +16,9 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     masterview.cpp \
-    recordsdialog.cpp
+    recordsdialog.cpp \
+    warehousedialog.cpp \
+    warehousepage.cpp
 
 HEADERS += \
     dataworker.h \
@@ -25,13 +27,17 @@ HEADERS += \
     goodstable.h \
     mainwindow.h \
     masterview.h \
-    recordsdialog.h
+    recordsdialog.h \
+    warehousedialog.h \
+    warehousepage.h
 
 FORMS += \
     goodstable.ui \
     mainwindow.ui \
     masterview.ui \
-    recordsdialog.ui
+    recordsdialog.ui \
+    warehousedialog.ui \
+    warehousepage.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
